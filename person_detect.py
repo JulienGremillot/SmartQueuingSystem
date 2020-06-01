@@ -99,6 +99,7 @@ class PersonDetect:
         '''
         Preprocessing Image
         '''
+        ### FIXME : Could not run Inference:  could not broadcast input array from shape (3,544,320) into shape (1,3,320,544)
         image=cv2.resize(image, (self.input_shape[2], self.input_shape[3]), interpolation = cv2.INTER_AREA)
         image=np.moveaxis(image, -1, 0)
         return image
