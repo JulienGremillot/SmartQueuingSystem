@@ -5,7 +5,7 @@ import os
 import cv2
 import argparse
 import sys
-
+from os import path
 
 class Queue:
     '''
@@ -68,14 +68,15 @@ class PersonDetect:
         '''
         preprocessed_image = self.preprocess_input(image)
         outputs = self.net.infer({self.input_name: preprocessed_image})
-        coords = self.preprocess_outputs(outputs)
+        coords = self.preprocess_outputs(outputs[self.output_name])
         return self.draw_outputs(coords, image)
 
     def draw_outputs(self, coords, image):
         '''
         Draw the bounding boxes in the image
         '''
-        width, height, _ = image.shape
+        width = int(image.shape[1])
+        height = int(image.shape[0])
         for coord in coords:
             coord[0] = int(coord[0] * width)
             coord[1] = int(coord[1] * height)
@@ -91,7 +92,7 @@ class PersonDetect:
         coords = []
         for bounding_box in outputs[0][0]:
             conf = bounding_box[2]
-            if conf >= self.threshold:
+            if conf >= float(self.threshold):
                 coords.append([bounding_box[3], bounding_box[4], bounding_box[5], bounding_box[6]])
         return coords
 
@@ -99,9 +100,9 @@ class PersonDetect:
         '''
         Preprocessing Image
         '''
-        ### FIXME : Could not run Inference:  could not broadcast input array from shape (3,544,320) into shape (1,3,320,544)
-        image=cv2.resize(image, (self.input_shape[2], self.input_shape[3]), interpolation = cv2.INTER_AREA)
-        image=np.moveaxis(image, -1, 0)
+        image = cv2.resize(image, (self.input_shape[3], self.input_shape[2]), interpolation=cv2.INTER_AREA)
+        image = image.transpose((2, 0, 1))
+        image = image.reshape(1, *image.shape)
         return image
 
 def main(args):
@@ -127,7 +128,11 @@ def main(args):
         print("error loading queue param file")
 
     try:
+        print("Reading video file", video_file)
         cap = cv2.VideoCapture(video_file)
+        cap.open(video_file)
+        if not path.exists(video_file):
+            print("Cannot locate video file: " + video_file)
     except FileNotFoundError:
         print("Cannot locate video file: " + video_file)
     except Exception as e:
@@ -152,13 +157,13 @@ def main(args):
 
             coords, image = pd.predict(frame)
             num_people = queue.check_coords(coords)
-            print("Total People in frame = {len(coords)}")
-            print("Number of people in queue = {num_people}")
+            print("Total People in frame =", len(coords))
+            print("Number of people in queue =", num_people)
             out_text = ""
             y_pixel = 25
 
             for k, v in num_people.items():
-                out_text += "No. of People in Queue {k} is {v} "
+                out_text += "No. of People in Queue " + str(k) + " is " + str(v)
                 if v >= int(max_people):
                     out_text += " Queue full; Please move to next Queue "
                 cv2.putText(image, out_text, (15, y_pixel), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255, 0), 2)
