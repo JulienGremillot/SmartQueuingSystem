@@ -14,7 +14,14 @@ sys.path.insert(0, os.path.abspath('/opt/intel_devcloud_support'))
 sys.path.insert(0, os.path.abspath('/opt/intel'))
 ```
 
-### Submitting jobs
+### Running locally
+
+Example command line :
+```
+python person_detect.py --model=models/FP16/person-detection-retail-0013 --device=CPU --video=resources/manufacturing.avi --queue_param=queue_param/manufacturing.npy --max_people=3 --threshold=0.5 --output_path=resources
+```
+
+### Submitting jobs to Intel Dev Cloud
 
 #### CPU
 ```
