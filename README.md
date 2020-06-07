@@ -1,5 +1,6 @@
 # SmartQueuingSystem
-Exercise project to compare solutions of queue management systems
+Exercise project to compare solutions of queue management systems with different hardware choices.
+The goal is to compare the performance of each hardware solution among CPU, GPU, VPU & FPGA. 
 
 ## Running
 
@@ -23,7 +24,24 @@ python person_detect.py --model=models/FP16/person-detection-retail-0013 --devic
 
 ### Submitting jobs to Intel Dev Cloud
 
+Below are example command lines used to submit jobs to the Intel Dev Cloud with the queue_job.sh script.
+
 #### CPU
 ```
-cpu_job_id = !qsub queue_job.sh -d . -l nodes=1:tank-870:i5-6500te -F "/data/models/intel/person-detection-retail-0013/FP32/person-detection-retail-0013 CPU /data/resources/manufacturing.mp4 /data/queue_param/manufacturing.npy /output/results/manufacturing/CPU 5"
+cpu_job_id = !qsub queue_job.sh -d . -l nodes=1:tank-870:i5-6500te -F "/data/models/intel/person-detection-retail-0013/FP32/person-detection-retail-0013 CPU /data/resources/manufacturing.mp4 /data/queue_param/manufacturing.npy /output/results/manufacturing/cpu 5"
+```
+
+#### GPU
+```
+gpu_job_id = !qsub queue_job.sh -d . -l nodes=1:tank-870:i5-6500te:intel-hd-530 -F "/data/models/intel/person-detection-retail-0013/FP16/person-detection-retail-0013 GPU /data/resources/manufacturing.mp4 /data/queue_param/manufacturing.npy /output/results/manufacturing/gpu 5"
+```
+
+#### VPU
+```
+vpu_job_id = !qsub queue_job.sh -d . -l nodes=1:tank-870:i5-6500te:intel-ncs2 -F "/data/models/intel/person-detection-retail-0013/FP16/person-detection-retail-0013 MYRIAD /data/resources/manufacturing.mp4 /data/queue_param/manufacturing.npy /output/results/manufacturing/vpu 5"
+```
+
+#### FPGA
+```
+fpga_job_id = !qsub queue_job.sh -d . -l nodes=1:tank-870:i5-6500te:iei-mustang-f100-a10 -F "/data/models/intel/person-detection-retail-0013/FP16/person-detection-retail-0013 HETERO:FPGA,CPU /data/resources/manufacturing.mp4 /data/queue_param/manufacturing.npy /output/results/manufacturing/fpga 5"
 ```
